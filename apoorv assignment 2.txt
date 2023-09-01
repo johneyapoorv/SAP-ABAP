@@ -1,0 +1,796 @@
+REPORT ZAPOOSHAR_ASSIGNMENT2.
+
+INCLUDE ZAPOOSHAR_DATA_DEC.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+SELECT-OPTIONS:  s_VBELN FOR vbak-VBELN MODIF ID gr1 ,
+                 S_vkorg FOR vbak-vkorg MODIF ID gr1 ,
+                 S_vtweg FOR vbak-vtweg MODIF ID gr1 ,
+                 S_spart FOR vbak-spart MODIF ID gr1 .
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK B2 WITH FRAME TITLE TEXT-001.
+PARAMETERS : p_file LIKE rlgrap-filename MODIF ID GR2.
+
+
+SELECTION-SCREEN END OF BLOCK B2.
+
+
+" RADIO BUTTON BLOCK
+SELECTION-SCREEN  BEGIN OF BLOCK b3 WITH FRAME TITLE TEXT-002.
+PARAMETERS: p_rad1  RADIOBUTTON GROUP RB1 USER-COMMAND za DEFAULT 'X',
+            p_rad2  RADIOBUTTON GROUP RB1,
+            p_rad3  RADIOBUTTON GROUP RB1,
+            p_rad4  RADIOBUTTON GROUP RB1,
+            p_rad5  RADIOBUTTON GROUP RB1,
+            p_rad6  RADIOBUTTON GROUP RB1,
+            p_rad7  RADIOBUTTON GROUP RB1,
+            p_rad8  RADIOBUTTON GROUP RB1,
+            p_rad9  RADIOBUTTON GROUP RB1,
+            p_rad10 RADIOBUTTON GROUP RB1.
+
+SELECTION-SCREEN END OF BLOCK b3.
+
+
+INITIALIZATION.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  CALL FUNCTION 'F4_FILENAME'
+    EXPORTING
+      PROGRAM_NAME  = SY-REPID
+      DYNPRO_NUMBER = SYST-DYNNR
+      FIELD_NAME    = 'P_FILE'
+    IMPORTING
+      FILE_NAME     = P_FILE.
+
+AT SELECTION-SCREEN OUTPUT.
+  PERFORM SELECTION.
+
+*  PERFORM LOGIC.
+*  PERFORM LOGIC_QUAN.
+*  PERFORM LOGIC_STATUS.
+
+START-OF-SELECTION.
+  IF P_RAD1 = 'X'.
+    PERFORM LOGIC.
+    PERFORM FIELDCAT.
+    PERFORM ALV_GRID.
+  ELSEIF P_RAD2 = 'X'.
+    PERFORM logic.
+    PERFORM SALV.
+  ELSEIF P_RAD3 = 'X'.
+    PERFORM TABLE_CONTROL.
+  ELSEIF P_RAD4 = 'X'.
+    PERFORM ADOBEFORM.
+  ELSEIF P_RAD5 = 'X'.
+    PERFORM UPLOAD.
+  ELSEIF P_RAD6 = 'X'.
+    PERFORM DOWNLOAD_file.
+  ELSEIF P_RAD7 = 'X'.
+    PERFORM FM.
+  ELSEIF P_RAD8 = 'X'.
+*    PERFORM CLASS.
+
+  ENDIF.
+
+
+
+
+
+  INCLUDE zapooshar_assignment2_selecf01.
+
+  INCLUDE zapooshar_assignment2_alv_gf01.
+
+  INCLUDE zapooshar_assignment2_salvf01.
+
+  INCLUDE zapooshar_assignment2_tablef01.
+
+  INCLUDE zapooshar_assignment2_adobef01.
+
+  INCLUDE zapooshar_assignment2_uploaf01.
+
+*  INCLUDE zapooshar_assignment2_downlf01.
+
+  INCLUDE zapooshar_assignment2_fmf01.
+
+*  INCLUDE zapooshar_assignment2_classf01.
+
+  INCLUDE zapooshar_assignment2_logicf01.
+*
+*INCLUDE zapooshar_assignment2_logicf02.
+*
+*INCLUDE zapooshar_assignment2_logicf03.
+
+  INCLUDE zapooshar_assignment2_fieldf01.
+
+INCLUDE zapooshar_assignment2_downlf02.
+
+
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_SELECF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  SELECTION
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM SELECTION .
+  IF p_rad5 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR1' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR2'.
+        screen-active = '1'.
+        screen-input = '1'.
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF p_rad6 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR1' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR2'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF P_RAD1 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR2' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR2'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF P_RAD2 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR2' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR1'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF P_RAD3 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR2' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR1'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF P_RAD4 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR2' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR1'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF P_RAD7 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR2' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR1'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+  ELSEIF P_RAD8 = 'X'.
+    LOOP AT SCREEN.
+      IF screen-group1 = 'GR2' .
+        screen-active = '0'.
+      ELSEIF screen-group1 = 'GR1'.
+        screen-active = '1'.
+        screen-input = '1' .
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+
+
+
+
+
+
+  ENDIF.
+
+
+
+ENDFORM.
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_ALV_GF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  ALV_GRID
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM ALV_GRID .
+*ALV REPORT
+
+*   V_STR1 =  'ZAP_STR_A2'.
+
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+
+      I_CALLBACK_PROGRAM      = 'SY_REPID'
+*     I_CALLBACK_PF_STATUS_SET = 'PF_STATUS_SET'
+*      I_CALLBACK_USER_COMMAND = 'APOORV'
+      it_fieldcat        = it_fieldcat[]
+*      I_STRUCTURE_NAME        = V_STR1
+
+    TABLES
+      T_OUTTAB                = IT_FIN
+
+    .
+  IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+  ENDIF.
+ENDFORM.
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_SALVF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  SALV
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM SALV .
+*
+DATA: gr_table TYPE REF TO cl_salv_table.
+
+
+  CALL METHOD cl_salv_table=>factory
+
+    IMPORTING
+      r_salv_table   = gr_table
+    CHANGING
+      t_table        = it_fin
+      .
+
+
+  gr_table->display( ).
+
+
+
+
+ENDFORM.
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_TABLEF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  TABLE_CONTROL
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM TABLE_CONTROL .
+*CALL TRANSACTION ZAP_TC1.
+CALL SCREEN 100.
+ENDFORM.
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_ADOBEF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  ADOBEFORM
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM ADOBEFORM .
+
+ENDFORM.
+
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_UPLOAF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  UPLOAD
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM UPLOAD .
+
+
+  DATA : t_upload  TYPE STANDARD TABLE OF st_fin,
+         wa_upload TYPE st_fin,
+         it_type   TYPE truxs_t_text_data.
+
+
+  CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+    EXPORTING
+      i_field_seperator    = ' '
+      i_line_header        = 'X'
+      i_tab_raw_data       = it_type
+      i_filename           = p_file
+    TABLES
+      i_tab_converted_data = t_upload[]
+    EXCEPTIONS
+      conversion_failed    = 1
+      OTHERS               = 2.
+
+  IF sy-subrc NE 0.
+
+  ENDIF.
+
+
+
+   DATA: gr_table TYPE REF TO cl_salv_table.
+
+*  cl_salv_table=>factory
+
+*  TRY.
+  CALL METHOD cl_salv_table=>factory
+*    EXPORTING
+*      list_display   = IF_SALV_C_BOOL_SAP=>FALSE
+*      r_container    =
+*      container_name =
+    IMPORTING
+      r_salv_table   = gr_table
+    CHANGING
+      t_table        = t_upload
+      .
+*   CATCH cx_salv_msg .
+*  ENDTRY.
+
+  gr_table->display( ).
+
+
+
+
+
+
+
+ENDFORM.
+
+
+
+
+
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_FMF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  FM
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM FM .
+CALL FUNCTION 'ZAPOOSHAR_FM1'
+  EXPORTING
+    S_VBELN        = s_vbeln
+    S_VKORG        = s_vkorg
+    S_VTWEG        = s_vtweg
+    S_SPART        = s_spart
+  TABLES
+    IT_FINAL       = it_fin
+          .
+
+ENDFORM.
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_LOGICF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  LOGIC
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+
+FORM LOGIC .
+TABLES:vbap.
+  DATA: IT_VBAK  TYPE TABLE OF VBAK,
+        WA_VBAK  TYPE VBAK,
+        IT_VBAP  TYPE TABLE OF VBAP,
+        WA_VBAP  TYPE VBAP,
+        IT_LIPS  TYPE TABLE OF LIPS,
+        WA_LIPS  TYPE LIPS,
+        IT_LIKP  TYPE TABLE OF LIKP,
+        WA_LIKP  TYPE LIKP,
+        IT_VBRP  TYPE TABLE OF VBRP,
+        WA_VBRP  TYPE VBRP,
+        IT_VBRK  TYPE TABLE OF VBRK,
+        WA_VBRK  TYPE VBRK,
+        IT_MAKT  TYPE TABLE OF MAKT,
+        WA_MAKT  TYPE MAKT,
+        it_final TYPE ZAP_STR_A2_TT,
+        wa_final LIKE LINE OF it_final.
+
+
+  SELECT * FROM VBAK INTO TABLE IT_VBAK
+    WHERE VBELN IN s_VBELN AND VKORG IN S_VKORG AND VTWEG IN S_VTWEG AND SPART IN S_SPART.
+
+
+
+  IF IT_VBAK IS NOT INITIAL.
+    SELECT * INTO CORRESPONDING FIELDS OF TABLE IT_VBAP FROM VBAP  INNER JOIN VBAK
+      ON VBAP~VBELN = VBAK~VBELN.
+  ENDIF.
+
+  IF IT_VBAP IS NOT INITIAL.
+    SELECT * INTO CORRESPONDING FIELDS OF TABLE IT_LIPS FROM LIPS INNER JOIN VBAP
+       ON LIPS~VGBEL = VBAP~VBELN AND LIPS~VGPOS = VBAP~POSNR.
+  ENDIF.
+
+  IF IT_LIPS IS NOT INITIAL.
+    SELECT * INTO CORRESPONDING FIELDS OF TABLE IT_LIKP FROM LIKP INNER JOIN LIPS
+      ON LIKP~VBELN = LIPS~VBELN.
+  ENDIF.
+
+  IF IT_LIKP IS NOT INITIAL.
+    SELECT * INTO CORRESPONDING FIELDS OF TABLE IT_VBRP FROM VBRP INNER JOIN LIPS
+      ON VBRP~VBELN = LIPS~VBELN AND VBRP~VGPOS = LIPS~POSNR.
+  ENDIF.
+
+  IF IT_VBRP IS NOT INITIAL.
+    SELECT * INTO CORRESPONDING FIELDS OF TABLE IT_VBRK FROM VBRK INNER JOIN VBRP
+      ON VBRK~VBELN = VBRP~VBELN.
+  ENDIF.
+
+  if it_vbap is not INITIAL.
+    SELECT * into CORRESPONDING FIELDS OF TABLE it_makt FROM makt INNER JOIN vbap
+      on makt~matnr = vbap~matnr.
+  endif.
+*    INTO TABLE it_makt.
+
+
+  LOOP AT it_vbak INTO WA_vbak.
+
+    wa_fin-vbeln = WA_vbak-vbeln.
+
+    wa_fin-auart = WA_vbak-auart.
+
+    wa_fin-ErDAT = WA_vbak-ErDAT.
+
+    READ TABLE it_vbap INTO WA_vbap WITH KEY vbeln = WA_VBak-vbeln.
+
+    IF SY-SUBRC EQ 0.
+
+      wa_fin-posnr = WA_vbap-posnr.
+      wa_fin-matnr = WA_vbap-matnr.
+      wa_fin-kwmeng = WA_vbap-kwmeng.
+*    if VBAp-VgTYP = 'L' .
+*
+*      wa_fin-kwmeng = WA_vbap-kwmeng.
+*
+*    ELSEIF vbap-vgtyp = 'K'.
+*      wa_fin-kwmeng = wa_vbap-zmeng.
+*    endif.
+
+      CLEAR WA_vbap.
+
+    ENDIF.
+
+    READ TABLE it_makt INTO wa_makt WITH KEY matnr = wa_vbap-matnr.
+
+    IF SY-SUBRC EQ 0.
+
+      wa_fin-maktx = wa_makt-maktx.
+
+
+      CLEAR wa_makt.
+
+    ENDIF.
+
+    READ TABLE it_lips INTO wa_lips WITH KEY vgpos = wa_vbap-posnr
+              vgbel = wa_vbap-vbeln.
+
+    IF SY-SUBRC EQ 0.
+
+      wa_fin-posnr_lps = wa_lips-posnr.
+      wa_fin-lfimg_lps = wa_lips-lfimg.
+
+      CLEAR wa_lips.
+
+    ENDIF.
+
+    READ TABLE it_likp INTO WA_LIKP WITH KEY vbeln = wa_lips-vgbel.
+
+    IF SY-SUBRC EQ 0.
+
+      wa_fin-vbeln_lkp = wa_likp-vbeln.
+      wa_fin-lfart_lkp = wa_likp-lfart.
+
+      CLEAR wa_likp.
+
+    ENDIF.
+
+    READ TABLE it_vbrp INTO wa_vbrp WITH KEY vgbel = wa_lips-vbeln
+              vgpos = wa_lips-posnr.
+
+    IF SY-SUBRC EQ 0.
+
+      wa_fin-POSNR_vbp = wa_vbrp-posnr.
+      wa_fin-FKIMG_vbp = wa_vbrp-fkimg.
+
+      CLEAR wa_vbrp.
+
+      READ TABLE it_vbrk INTO wa_vbrk WITH KEY vbeln = wa_vbrp-vbeln.
+
+      IF SY-SUBRC EQ 0.
+
+        wa_fin-VBELN_vbk = wa_vbrk-vbeln.
+        wa_fin-FKART_vbk = wa_vbrk-fkart.
+
+        CLEAR wa_vbrk.
+
+      ENDIF.
+
+
+    ENDIF.
+
+    APPEND WA_FIN TO IT_FIN.
+
+    CLEAR: WA_FIN.
+
+  ENDLOOP.
+
+ENDFORM.
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_FIELDF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  FIELDCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM FIELDCAT .
+it_fieldcat-col_pos = '1'.
+  it_fieldcat-fieldname = 'VBELN'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'Sales order'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '2'.
+  it_fieldcat-fieldname = 'posnr'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'Sales order item'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '3'.
+  it_fieldcat-fieldname = 'auart'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'order type'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '4'.
+  it_fieldcat-fieldname = 'ERDAT'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'sales order date'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '5'.
+  it_fieldcat-fieldname = 'matnr'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'material'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '6'.
+  it_fieldcat-fieldname = 'maktx'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'material description'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '7'.
+  it_fieldcat-fieldname = 'kwmeng'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'sales order quantity'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '8'.
+  it_fieldcat-fieldname = 'vbeln_lkp'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'DELIVERY NUMBER'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '9'.
+  it_fieldcat-fieldname = 'posnr_lps'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'DELIVERY ITEM'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '10'.
+  it_fieldcat-fieldname = 'lfart_lkp'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'DELIVERY TYPE'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '11'.
+  it_fieldcat-fieldname = 'lfimg_lps'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'DELIVERY QUANTITY'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '12'.
+  it_fieldcat-fieldname = 'VBELN_VBK'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'INVOICE NO.'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '13'.
+  it_fieldcat-fieldname = 'POSNR_VBP'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'INVOICE ITEM'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '14'.
+  it_fieldcat-fieldname = 'FKART_VBK'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'INVOICE TYPE'.
+  APPEND it_fieldcat.
+
+  it_fieldcat-col_pos = '15'.
+  it_fieldcat-fieldname = 'FKIMG_VBP'.
+  it_fieldcat-tabname = 'IT_fin'.
+  it_fieldcat-seltext_l = 'INVOICE QUANTITY'.
+  APPEND it_fieldcat.
+ENDFORM.
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_ASSIGNMENT2_DOWNLF02.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  DOWNLOAD_FILE
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM DOWNLOAD_FILE .
+
+
+DATA: g_str1 TYPE string VALUE '.xls',
+      g_str  TYPE string value 'apoorv',
+      g_str2 TYPE string.
+
+DATA : BEGIN OF it_header OCCURS 0,
+         line(50) TYPE c,
+       END OF it_header.
+
+
+
+  it_header-line = 'Sales Order'.
+  APPEND it_header.
+  it_header-line = 'Sales Order Item'.
+  APPEND it_header.
+  it_header-line = 'Order type'.
+  APPEND it_header.
+  it_header-line = 'Sales order date'.
+  APPEND it_header.
+  it_header-line = 'material'.
+  APPEND it_header.
+  it_header-line = 'material description'.
+  APPEND it_header.
+  it_header-line = 'Sales Order Quantity'.
+  APPEND it_header.
+  it_header-line = 'delivery number'.
+  APPEND it_header.
+  it_header-line = 'deliver item'.
+  APPEND it_header.
+  it_header-line = 'delivery type'.
+  APPEND it_header.
+  it_header-line = 'delivery quantity'.
+  APPEND it_header.
+  it_header-line = 'invoice number'.
+  APPEND it_header.
+  it_header-line = 'invoice item'.
+  APPEND it_header.
+  it_header-line = 'invoice type'.
+  APPEND it_header.
+  it_header-line = 'invoice quantity'.
+  APPEND it_header.
+
+  IF p_file NS '.xls'.
+    g_str = p_file.
+    CONCATENATE g_str g_str1 INTO g_str2.
+  ELSE.
+    g_str2 = p_file.
+  ENDIF.
+
+
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+*     BIN_FILESIZE                    =
+      filename                        = g_str2
+     FILETYPE                        = 'ASC'
+*     APPEND                          = ' '
+     WRITE_FIELD_SEPARATOR           = 'X'
+
+    tables
+      data_tab                        = it_fin
+      FIELDNAMES                      = it_header
+
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+ENDFORM.

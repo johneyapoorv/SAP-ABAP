@@ -1,0 +1,437 @@
+REPORT ZAPOOSHAR_A1_ALV2.
+
+
+
+DATA: LT_LFB TYPE TABLE OF ZLS_LFB1,
+      WA_LFB TYPE ZLS_LFB1,
+      LT_KNB TYPE TABLE OF ZLS_KNB1,
+      WA_KNB TYPE ZLS_KNB1,
+
+      V_STR1 TYPE DD02L-TABNAME,
+      V_STR2 TYPE DD02L-TABNAME,
+      C_STR1 TYPE DD02L-TABNAME,
+      C_STR2 TYPE DD02L-TABNAME,
+      V_STREK TYPE DD02L-TABNAME,
+      C_STREK TYPE DD02L-TABNAME,
+
+      LT_LFA1 TYPE STANDARD TABLE OF ZAP_VENDOR,
+      LT_KNA1 TYPE STANDARD TABLE OF ZAP_CUSTOMER,
+      WA_LFA1 TYPE ZAP_VENDOR,
+      WA_KNA1 TYPE ZAP_CUSTOMER,
+
+      LT_EKPO TYPE STANDARD TABLE OF ZAP_EKPO,
+      WA_EKPO TYPE ZAP_EKPO,
+      LT_EKKO TYPE STANDARD TABLE OF ZAP_EKKO,
+      WA_EKKO TYPE ZAP_EKKO,
+
+      LT_VBAP TYPE STANDARD TABLE OF ZAP_VBAP,
+      WA_VBAP TYPE ZAP_VBAP,
+      LT_VBAK TYPE STANDARD TABLE OF ZAP_VBAK,
+      WA_VBAK TYPE ZAP_VBAK.
+
+
+
+
+
+
+SELECTION-SCREEN BEGIN OF SCREEN 100.
+SELECT-OPTIONS: S_BUKRS FOR WA_LFB-BUKRS.
+SELECTION-SCREEN END OF SCREEN 100.
+
+
+SELECTION-SCREEN BEGIN OF SCREEN 101.
+SELECT-OPTIONS:S_BUKRS1 FOR WA_KNB-BUKRS.
+SELECTION-SCREEN END OF SCREEN 101.
+
+
+
+PARAMETERS: VENDOR   RADIOBUTTON GROUP ONE,
+            CUSTOMER RADIOBUTTON GROUP ONE.
+
+SELECTION-SCREEN BEGIN OF SCREEN 102.
+SELECT-OPTIONS: SO_BUKRS FOR WA_EKKO-BUKRS,
+                S_LIFNR FOR WA_EKKO-LIFNR.
+SELECTION-SCREEN END OF SCREEN 102.
+
+SELECTION-SCREEN BEGIN OF SCREEN 103.
+  SELECT-OPTIONS: S_KUNNR FOR WA_VBAK-KUNNR,
+                  S_BUKVF FOR WA_VBAK-BUKRS_VF.
+  SELECTION-SCREEN END OF SCREEN 103.
+
+IF VENDOR ='X'.
+  CALL SELECTION-SCREEN 100 STARTING AT 10 10 ENDING AT 100 10.
+  PERFORM GET_VDETAILS.
+
+
+
+ELSEIF CUSTOMER = 'X'.
+  CALL SELECTION-SCREEN 101 STARTING AT 10 10 ENDING AT 100 10.
+  PERFORM GET_CDETAILS.
+ENDIF.
+
+INCLUDE ZAPOORV_VDISP.
+
+
+INCLUDE ZAPOOORV_CDISP.
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_A1_ALV_GET_VDETAIF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  GET_VDETAILS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM GET_VDETAILS .
+  SELECT BUKRS
+         ERDAT
+         ERNAM FROM LFB1 INTO TABLE LT_LFB WHERE BUKRS IN S_BUKRS.
+  V_STR1 ='ZLS_LFB1'.
+
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+
+      I_CALLBACK_PROGRAM      = SY-CPROG
+*     I_CALLBACK_PF_STATUS_SET = 'PF_STATUS_SET'
+      I_CALLBACK_USER_COMMAND = 'APOORV'
+
+      I_STRUCTURE_NAME        = V_STR1
+
+    TABLES
+      T_OUTTAB                = LT_LFB
+
+    .
+  IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+ENDFORM.
+
+FORM APOORV USING C LIKE SY-UCOMM
+                  D TYPE SLIS_SELFIELD.
+  READ TABLE LT_LFB INTO WA_LFB INDEX D-TABINDEX.
+
+  SELECT LFB1~BUKRS
+         LFA1~LIFNR
+         LFA1~NAME1
+    INTO TABLE LT_LFA1 FROM LFB1 INNER JOIN LFA1 ON LFB1~LIFNR = LFA1~LIFNR
+    WHERE BUKRS = WA_LFB-BUKRS.
+
+  V_STR2 = 'ZAP_VENDOR'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      I_CALLBACK_PROGRAM       = SY-CPROG
+      I_CALLBACK_PF_STATUS_SET = 'PF_STATUS_SET'
+      I_CALLBACK_USER_COMMAND  = 'USER-COMMAND'
+
+      I_STRUCTURE_NAME         = V_STR2
+
+    TABLES
+      T_OUTTAB                 = LT_LFA1
+.
+
+  IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+  ENDIF.
+ENDFORM.
+
+*
+FORM PF_STATUS_SET USING RT_EXTAB TYPE SLIS_T_EXTAB.
+  SET PF-STATUS 'STATUS' EXCLUDING RT_EXTAB.
+
+ENDFORM.
+
+FORM USER-COMMAND USING UCOMM TYPE SY-UCOMM SELFIELD TYPE SLIS_SELFIELD.
+  CASE UCOMM.
+    WHEN 'PB_PO'.
+      CALL SELECTION-SCREEN 102 STARTING AT 10 10 ENDING AT 100 10.
+      PERFORM GET_EKKO.
+
+  ENDCASE.
+
+ENDFORM.
+
+FORM GET_EKKO.
+
+  SELECT EKKO~BUKRS
+         EKKO~LIFNR
+         EKKO~EBELN
+         EKPO~EBELP
+         EKPO~TXZ01
+         EKPO~MENGE
+         EKPO~MEINS
+         EKPO~NETWR INTO TABLE LT_EKPO FROM EKKO INNER JOIN EKPO ON EKPO~EBELN = EKKO~EBELN
+*         WHERE EKKO~BUKRS EQ SO_BUKRS AND EKKO~LIFNR EQ S_LIFNR.
+
+         WHERE EKKO~BUKRS IN SO_BUKRS AND LIFNR IN S_LIFNR.
+  V_STREK = 'ZAP_EKPO'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+
+     I_CALLBACK_PROGRAM                = SY-CPROG
+     I_CALLBACK_PF_STATUS_SET          = 'PF_STATUS'
+     I_CALLBACK_USER_COMMAND           = 'USER_SELECTION'
+
+      I_STRUCTURE_NAME = V_STREK
+
+    TABLES
+      T_OUTTAB         = LT_EKPO
+
+    .
+  IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+  ENDIF.
+ENDFORM.
+
+FORM PF_STATUS USING RT_EXTAB TYPE SLIS_T_EXTAB.
+  SET PF-STATUS 'STATUS_2' EXCLUDING RT_EXTAB.
+  ENDFORM.
+
+
+FORM USER_SELECTION USING UCOMM TYPE SY-UCOMM SELFIELD TYPE SLIS_SELFIELD.
+CASE UCOMM.
+  WHEN 'PR_PO'.
+    PERFORM GET_DETAILS.
+
+   WHEN 'PR_SUM'.
+     PERFORM GET_SUMMARY.
+  ENDCASE.
+  ENDFORM.
+
+
+FORM GET_DETAILS.
+SUBMIT ZAP_FORM1_DP.
+
+  ENDFORM.
+
+FORM GET_SUMMARY.
+SUBMIT ZAP_FORM2_DP.
+
+  ENDFORM.
+
+
+
+
+
+
+*----------------------------------------------------------------------*
+***INCLUDE ZAPOOSHAR_A1_ALV_GET_CDETAIF01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  GET_CDETAILS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM GET_CDETAILS .
+SELECT BUKRS
+       ERDAT
+       ERNAM FROM KNB1 INTO TABLE LT_KNB WHERE BUKRS IN S_BUKRS1.
+C_STR1 = 'ZLS_KNB1'.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK                 = ' '
+*   I_BYPASSING_BUFFER                = ' '
+*   I_BUFFER_ACTIVE                   = ' '
+   I_CALLBACK_PROGRAM                = SY-CPROG
+*   I_CALLBACK_PF_STATUS_SET          = ' '
+   I_CALLBACK_USER_COMMAND           = 'SHARMA'
+*   I_CALLBACK_TOP_OF_PAGE            = ' '
+*   I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*   I_CALLBACK_HTML_END_OF_LIST       = ' '
+   I_STRUCTURE_NAME                  = C_STR1
+*   I_BACKGROUND_ID                   = ' '
+*   I_GRID_TITLE                      =
+*   I_GRID_SETTINGS                   =
+*   IS_LAYOUT                         =
+*   IT_FIELDCAT                       =
+*   IT_EXCLUDING                      =
+*   IT_SPECIAL_GROUPS                 =
+*   IT_SORT                           =
+*   IT_FILTER                         =
+*   IS_SEL_HIDE                       =
+*   I_DEFAULT                         = 'X'
+*   I_SAVE                            = ' '
+*   IS_VARIANT                        =
+*   IT_EVENTS                         =
+*   IT_EVENT_EXIT                     =
+*   IS_PRINT                          =
+*   IS_REPREP_ID                      =
+*   I_SCREEN_START_COLUMN             = 0
+*   I_SCREEN_START_LINE               = 0
+*   I_SCREEN_END_COLUMN               = 0
+*   I_SCREEN_END_LINE                 = 0
+*   I_HTML_HEIGHT_TOP                 = 0
+*   I_HTML_HEIGHT_END                 = 0
+*   IT_ALV_GRAPHICS                   =
+*   IT_HYPERLINK                      =
+*   IT_ADD_FIELDCAT                   =
+*   IT_EXCEPT_QINFO                   =
+*   IR_SALV_FULLSCREEN_ADAPTER        =
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER           =
+*   ES_EXIT_CAUSED_BY_USER            =
+  TABLES
+    T_OUTTAB                          = LT_KNB
+* EXCEPTIONS
+*   PROGRAM_ERROR                     = 1
+*   OTHERS                            = 2
+          .
+IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+
+ENDFORM.
+
+
+FORM SHARMA USING C LIKE SY-UCOMM
+                  D TYPE SLIS_SELFIELD.
+  READ TABLE LT_KNB INTO WA_KNB INDEX D-TABINDEX.
+
+  SELECT KNB1~BUKRS
+         KNA1~KUNNR
+         KNA1~NAME1
+    INTO TABLE LT_KNA1 FROM KNB1 INNER JOIN KNA1 ON KNB1~KUNNR = KNA1~KUNNR
+    WHERE BUKRS = WA_KNB-BUKRS.
+
+    C_STR2 = 'ZAP_CUSTOMER'.
+
+    CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+     EXPORTING
+*       I_INTERFACE_CHECK                 = ' '
+*       I_BYPASSING_BUFFER                = ' '
+*       I_BUFFER_ACTIVE                   = ' '
+       I_CALLBACK_PROGRAM                = SY-CPROG
+       I_CALLBACK_PF_STATUS_SET          = 'PF_STATUS2'
+       I_CALLBACK_USER_COMMAND           = 'USER-INPUT'
+*       I_CALLBACK_TOP_OF_PAGE            = ' '
+*       I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*       I_CALLBACK_HTML_END_OF_LIST       = ' '
+       I_STRUCTURE_NAME                  = C_STR2
+*       I_BACKGROUND_ID                   = ' '
+*       I_GRID_TITLE                      =
+*       I_GRID_SETTINGS                   =
+*       IS_LAYOUT                         =
+*       IT_FIELDCAT                       =
+*       IT_EXCLUDING                      =
+*       IT_SPECIAL_GROUPS                 =
+*       IT_SORT                           =
+*       IT_FILTER                         =
+*       IS_SEL_HIDE                       =
+*       I_DEFAULT                         = 'X'
+*       I_SAVE                            = ' '
+*       IS_VARIANT                        =
+*       IT_EVENTS                         =
+*       IT_EVENT_EXIT                     =
+*       IS_PRINT                          =
+*       IS_REPREP_ID                      =
+*       I_SCREEN_START_COLUMN             = 0
+*       I_SCREEN_START_LINE               = 0
+*       I_SCREEN_END_COLUMN               = 0
+*       I_SCREEN_END_LINE                 = 0
+*       I_HTML_HEIGHT_TOP                 = 0
+*       I_HTML_HEIGHT_END                 = 0
+*       IT_ALV_GRAPHICS                   =
+*       IT_HYPERLINK                      =
+*       IT_ADD_FIELDCAT                   =
+*       IT_EXCEPT_QINFO                   =
+*       IR_SALV_FULLSCREEN_ADAPTER        =
+*     IMPORTING
+*       E_EXIT_CAUSED_BY_CALLER           =
+*       ES_EXIT_CAUSED_BY_USER            =
+      TABLES
+        T_OUTTAB                          = LT_KNA1
+*     EXCEPTIONS
+*       PROGRAM_ERROR                     = 1
+*       OTHERS                            = 2
+              .
+    IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+    ENDIF.
+
+    ENDFORM.
+
+
+FORM PF_STATUS2 USING RT_EXTAB TYPE SLIS_T_EXTAB.
+  SET PF-STATUS 'STATUS3' EXCLUDING RT_EXTAB.
+
+ENDFORM.
+
+FORM USER-INPUT USING UCOMM TYPE SY-UCOMM SELFIELD TYPE SLIS_SELFIELD.
+  CASE UCOMM.
+    WHEN 'PB_SO'.
+      CALL SELECTION-SCREEN 103 STARTING AT 10 10 ENDING AT 100 10.
+      PERFORM GET_VBAK.
+
+  ENDCASE.
+
+ENDFORM.
+
+
+FORM GET_VBAK.
+
+  SELECT VBAK~KUNNR
+         VBAK~BUKRS_VF
+         VBAK~VBELN
+         VBAP~POSNR
+         VBAP~ARKTX
+         VBAP~NTGEW
+         VBAP~GEWEI
+         VBAP~NETWR
+         VBAP~WAERK INTO TABLE LT_VBAP FROM VBAK INNER JOIN VBAP ON VBAP~VBELN = VBAK~VBELN
+         WHERE VBAK~KUNNR IN S_KUNNR AND BUKRS_VF IN S_BUKVF.
+
+    C_STREK = 'ZAP_VBAP'.
+
+     CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+
+     I_CALLBACK_PROGRAM                = SY-CPROG
+     I_CALLBACK_PF_STATUS_SET          = 'PF_STATUS4'
+     I_CALLBACK_USER_COMMAND           = 'USER_SELECTION2'
+
+      I_STRUCTURE_NAME = C_STREK
+
+    TABLES
+      T_OUTTAB         = LT_VBAP
+
+    .
+  IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+  ENDIF.
+  ENDFORM.
+
+  FORM PF_STATUS4 USING RT_EXTAB TYPE SLIS_T_EXTAB.
+  SET PF-STATUS 'STATUS_4' EXCLUDING RT_EXTAB.
+  ENDFORM.
+
+
+FORM USER_SELECTION2 USING UCOMM TYPE SY-UCOMM SELFIELD TYPE SLIS_SELFIELD.
+CASE UCOMM.
+  WHEN 'PR_SO'.
+*    PERFORM GET_DETAILS.
+
+   WHEN 'PR_SUM'.
+*     PERFORM GET_SUMMARY.
+  ENDCASE.
+  ENDFORM.
+
+
+
+
+
+
